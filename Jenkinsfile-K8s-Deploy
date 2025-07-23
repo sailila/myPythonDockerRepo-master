@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git url: 'https://github.com/sailila/myPythonDockerRepo-master.git', branch: 'main'
+         git url: 'git@github.com:sailila/myPythondockerrepo-branch.git', credentialsId: 'github-ssh'
       }
     }
 
