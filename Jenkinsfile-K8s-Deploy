@@ -24,16 +24,22 @@ pipeline {
                 }
             }
         }
-stage('Pushing to ECR') {
-    steps {
-        withCredentials([[
-            $class: 'AmazonWebServicesCredentialsBinding',
-            credentialsId: 'aws-ecr-creds'
-        ]]) {
-            sh '''
-                aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 528301062709.dkr.ecr.ap-south-1.amazonaws.com
-                docker push 528301062709.dkr.ecr.ap-south-1.amazonaws.com/myrepo:latest
-            '''
+pipeline {
+    agent any
+
+    stages {
+        stage('Login & Push to ECR') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-ecr-creds'
+                ]]) {
+                    sh '''
+                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 528301062709.dkr.ecr.ap-south-1.amazonaws.com
+                        docker push 528301062709.dkr.ecr.ap-south-1.amazonaws.com/myrepo:latest
+                    '''
+                }
+            }
         }
     }
 }
