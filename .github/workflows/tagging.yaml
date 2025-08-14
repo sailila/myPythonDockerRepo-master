@@ -1,0 +1,44 @@
+name: Create Tag and Release
+
+on:
+  workflow_dispatch: # Manual trigger
+    inputs:
+      version:
+        description: 'Version number (e.g. v1.0.0)'
+        required: true
+  push:
+    branches:
+      - main  # Optional: trigger on push to main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important for tagging
+
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create Git Tag
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: Release ${{ github.event.inputs.version }}
+          body: |
+            ## Changes
+            - Describe the changes here
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
